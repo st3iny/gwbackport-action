@@ -4,6 +4,8 @@ import semver from 'semver'
 import { getBackportBranches } from './backport.js'
 import apps from './apps.json'
 
+run()
+
 async function run() {
   try {
     // The YML workflow will need to set githubToken with the GitHub Secret Token
@@ -29,6 +31,7 @@ async function run() {
 
     core.setOutput('branches', JSON.stringify(branches))
 
+    // React to comment and request backports from the real bot
     await octokit.rest.reactions.createForIssueComment({
       comment_id: context.payload.comment.id,
       content: 'eyes',
@@ -52,8 +55,6 @@ async function run() {
   }
 }
 
-run()
-
 /**
  * Allowed commands:
  * /gwbackport 24
@@ -64,7 +65,7 @@ run()
  * @param {string} commentBody
  * @returns {number} Parsed major server version
  */
-export function parseComment(commentBody) {
+function parseComment(commentBody) {
   const commentRegex = /\/(?:gwbackport|gwbp)\s+(?:stable)?(?<major>[0-9]+)/
   const match = commentRegex.exec(commentBody)
   const major = parseInt(match?.groups?.major)
