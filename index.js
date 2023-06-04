@@ -29,8 +29,6 @@ async function run() {
     const branches = getBackportBranches(appId, serverVersion, apps)
     core.info(`Requesting backports for branches ${branches.join(', ')}`)
 
-    core.setOutput('branches', JSON.stringify(branches))
-
     // React to comment and request backports from the real bot
     await octokit.rest.reactions.createForIssueComment({
       comment_id: context.payload.comment.id,
