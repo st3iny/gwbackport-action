@@ -1,7 +1,7 @@
 {
   "name": "gwbackport-action",
   "version": "0.1.0-alpha.1",
-  "description": "A GitHub workflows action to request backports for Nextcloud apps using the groupware versioning scheme.",
+  "description": "A GitHub action to request backports for Nextcloud apps using the groupware versioning scheme.",
   "main": "index.js",
   "type": "module",
   "scripts": {
