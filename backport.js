@@ -80,7 +80,7 @@ export function getBackportBranches(appId, target, apps) {
   // Gather all backport version targets from platform map
   const backportVersions = []
   for (const [platform, versions] of mostRecentVersionForPlatform) {
-    core.info(`${platform} ${JSON.stringify(versions)}}`)
+    core.info(`${platform} ${JSON.stringify(versions.map((v) => v.toString()))}`)
     backportVersions.push(...versions)
   }
 
