@@ -1,33 +1,24 @@
+import * as core from '@actions/core'
 import semver from 'semver'
-import fs from 'fs'
 
-/*
-if (process.argv.length < 4) {
-  console.error('Usage: node index.js <appId> <target>')
-  process.exit(1)
-}
-
-const appId = process.argv[2]
-const target = semver.valid(process.argv[3]) ?? semver.coerce(process.argv[3])
-console.log(`Generating backports for app ${appId} down to server ${target.toString()}`)
-
-const apps = JSON.parse(fs.readFileSync('apps.json', 'utf8'))
-
-const branches = getBackportBranches(appId, target, apps)
-console.log('Backporting to', branches)
-*/
-
+/**
+ * Get a list of backport branches for a given app, server version and parsed apps.json.
+ *
+ * @param {string} appId
+ * @param {semver.SemVer} target Target server version
+ * @param {object[]} apps Parsed snapshot of apps.json
+ * @returns {string[]} List of backport target branches
+ */
 export function getBackportBranches(appId, target, apps) {
   const app = apps.find((app) => app.id === appId)
-  //console.log(app)
   if (!app) {
-    console.error(`App ${appId} not found`)
-    process.exit(1)
+    throw new Error(`App ${appId} not found`)
   }
 
   // Gather most recent app version and rc for each server version
   const mostRecentVersionForPlatform = new Map()
   let platform = target
+  /* eslint-disable-next-line no-constant-condition */
   while (true) {
     let mostRecentVersion = undefined
     let mostRecentRc = undefined
@@ -89,17 +80,9 @@ export function getBackportBranches(appId, target, apps) {
   // Gather all backport version targets from platform map
   const backportVersions = []
   for (const [platform, versions] of mostRecentVersionForPlatform) {
-    console.debug(
-      platform,
-      versions.map((v) => v.toString()),
-    )
+    core.info(`${platform} ${JSON.stringify(versions)}}`)
     backportVersions.push(...versions)
   }
-
-  console.log(
-    'Backporting to',
-    backportVersions.map((v) => v.toString()),
-  )
 
   // Get unique and sorted branches to backport to
   let branches = backportVersions.map((version) => `stable${version.major}.${version.minor}`)
@@ -108,6 +91,13 @@ export function getBackportBranches(appId, target, apps) {
   return branches
 }
 
+/**
+ * Create a new array with unique values.
+ *
+ * @template T
+ * @param {T[]} array
+ * @returns {T[]} New array with unique values
+ */
 function unique(array) {
   return [...new Set(array)]
 }

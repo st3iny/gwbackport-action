@@ -2,7 +2,6 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import semver from 'semver'
 import { getBackportBranches } from './backport.js'
-import fs from 'fs'
 import apps from './apps.json'
 
 async function run() {
@@ -14,31 +13,17 @@ async function run() {
     const context = github.context
     const octokit = github.getOctokit(githubToken)
 
-    // For testing and debugging
-    const appId = core.getInput('appId', { required: true })
+    // The app id can be overwritten for testing and debugging
+    const appId = core.getInput('appId') ?? context.repo.repo
+    core.info(`Got app id: ${appId}`)
 
-    //const commentBody = core.getInput('commentBody', { required: true })
+    // Parse server version from comment body
     const commentBody = context.payload.comment.body
-    core.info(`Parsing comment: '${commentBody}'`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
+    core.info(`Parsing comment: '${commentBody}'`)
+    const serverVersion = semver.coerce(parseComment(commentBody))
+    core.info(`Requesting backports for ${appId} down to server ${serverVersion.major}`)
 
-    /*
-     * Allowed commands:
-     * /gwbackport 24
-     * /gwbackport stable24
-     * /gwbp 24
-     * /gwbp stable24
-     */
-    const commentRegex = /\/(?:gwbackport|gwbp)\s+(?:stable)?(?<major>[0-9]+)/
-    const match = commentRegex.exec(commentBody)
-    const major = parseInt(match?.groups?.major)
-    if (!major) {
-      throw new Error('Failed to parse command in comment body')
-    }
-
-    core.info(`Requesting backports for ${appId} down to server ${major}`)
-
-    const serverVersion = semver.coerce(major)
-    //const apps = JSON.parse(fs.readFileSync('apps.json', 'utf8'))
+    // Generate a list of backport branches
     const branches = getBackportBranches(appId, serverVersion, apps)
     core.info(`Requesting backports for branches ${branches.join(', ')}`)
 
@@ -68,3 +53,23 @@ async function run() {
 }
 
 run()
+
+/**
+ * Allowed commands:
+ * /gwbackport 24
+ * /gwbackport stable24
+ * /gwbp 24
+ * /gwbp stable24
+ *
+ * @param {string} commentBody
+ * @returns {number} Parsed major server version
+ */
+export function parseComment(commentBody) {
+  const commentRegex = /\/(?:gwbackport|gwbp)\s+(?:stable)?(?<major>[0-9]+)/
+  const match = commentRegex.exec(commentBody)
+  const major = parseInt(match?.groups?.major)
+  if (!major) {
+    throw new Error('Failed to parse command in comment body')
+  }
+  return major
+}
