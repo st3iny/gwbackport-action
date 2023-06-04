@@ -1,15 +1,12 @@
 name: 'gwbackport-action'
-description: 'A GitHub workflows action to request backports for Nextcloud apps using the groupware versioning scheme.'
+description: 'A GitHub action to request backports for Nextcloud apps using the groupware versioning scheme.'
 inputs:
   githubToken:
     description: 'Needed to post comments and create reactions'
     required: true
   appId:
-    description: 'for testing and debugging'
-    required: true
-outputs:
-  branches:
-    description: 'Backport target branches'
+    description: 'Force an app id for testing and debugging'
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
