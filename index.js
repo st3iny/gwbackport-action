@@ -16,7 +16,7 @@ async function run() {
     const octokit = github.getOctokit(githubToken)
 
     // The app id can be overwritten for testing and debugging
-    const appId = core.getInput('appId') ?? context.repo.repo
+    const appId = core.getInput('appId') || context.repo.repo
     core.info(`Got app id: ${appId}`)
 
     // Parse server version from comment body
