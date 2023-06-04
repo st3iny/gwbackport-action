@@ -42,7 +42,7 @@ async function run() {
     const branches = getBackportBranches(appId, serverVersion, apps)
     core.info(`Requesting backports for branches ${branches.join(', ')}`)
 
-    github.core.setOutput('branches', JSON.stringify(branches))
+    core.setOutput('branches', JSON.stringify(branches))
 
     await octokit.rest.reactions.createForIssueComment({
       comment_id: context.payload.comment.id,
