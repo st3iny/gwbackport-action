@@ -16219,6 +16219,7 @@ function unique(array) {
 
 
 
+
 async function run() {
   try {
     // The YML workflow will need to set githubToken with the GitHub Secret Token
@@ -16252,7 +16253,8 @@ async function run() {
     core.info(`Requesting backports for ${appId} down to server ${major}`)
 
     const serverVersion = semver.coerce(major)
-    const branches = getBackportBranches(serverVersion)
+    const apps = JSON.parse(external_fs_.readFileSync('apps.json', 'utf8'))
+    const branches = getBackportBranches(appId, serverVersion, apps)
     core.info(`Requesting backports for branches ${branches.join(', ')}`)
 
     github.core.setOutput('branches', JSON.stringify(branches))

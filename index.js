@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import semver from 'semver'
 import { getBackportBranches } from './backport.js'
+import fs from 'fs'
 
 async function run() {
   try {
@@ -36,7 +37,8 @@ async function run() {
     core.info(`Requesting backports for ${appId} down to server ${major}`)
 
     const serverVersion = semver.coerce(major)
-    const branches = getBackportBranches(serverVersion)
+    const apps = JSON.parse(fs.readFileSync('apps.json', 'utf8'))
+    const branches = getBackportBranches(appId, serverVersion, apps)
     core.info(`Requesting backports for branches ${branches.join(', ')}`)
 
     github.core.setOutput('branches', JSON.stringify(branches))
